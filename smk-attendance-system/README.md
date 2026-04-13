@@ -1,33 +1,96 @@
-# SMK Attendance System - Sistem Absensi Siswa SMK
+# SMK Attendance System
 
-Sistem absensi berbasis web untuk siswa SMK dengan fitur pencatatan jam datang dan jam pulang.
+Sistem Absensi Siswa SMK Berbasis Web dengan Fitur Jam Datang dan Jam Pulang.
 
 ## 🚀 Fitur Utama
 
-### 1. **Absensi Real-time**
-- Check-in (Jam Datang) dengan QR Code, GPS, dan Foto Selfie
-- Check-out (Jam Pulang) dengan validasi lokasi
-- Deteksi keterlambatan otomatis
-- Geofencing untuk memastikan siswa berada di lingkungan sekolah
+- **Absensi QR Code**: Scan QR code untuk check-in/check-out
+- **GPS Geofencing**: Validasi lokasi siswa berada di lingkungan sekolah
+- **Photo Verification**: Upload foto selfie saat absensi
+- **Auto Late Detection**: Deteksi otomatis keterlambatan
+- **Multi-role Dashboard**: Admin, Guru, Siswa, Orang Tua
+- **Real-time Monitoring**: Dashboard real-time untuk monitoring kehadiran
+- **Laporan & Export**: Export ke PDF, Excel, CSV
+- **Notifikasi**: Integrasi WhatsApp dan Email
 
-### 2. **Multi-Role Access**
-- **Admin**: Manajemen penuh sistem
-- **Guru**: Verifikasi absensi, lihat laporan kelas
-- **Siswa**: Lakukan absensi, lihat riwayat
-- **Orang Tua**: Monitoring kehadiran anak
+## 📋 Requirements
 
-### 3. **Dashboard & Laporan**
-- Statistik real-time
-- Grafik kehadiran 7 hari terakhir
-- Kalender bulanan absensi
-- Export laporan (PDF, Excel, CSV)
+- PHP >= 8.2
+- MySQL 8.0 atau MariaDB 10.6+
+- Composer
+- Node.js & NPM (untuk frontend assets)
+- Redis (opsional, untuk caching)
 
-### 4. **Keamanan**
-- Validasi QR Code unik per siswa
-- GPS geofencing
-- Foto selfie saat absensi
-- Enkripsi password
-- Role-based access control
+## 🔧 Instalasi
+
+### 1. Clone Repository
+
+```bash
+git clone <repository-url>
+cd smk-attendance-system
+```
+
+### 2. Install Dependencies
+
+```bash
+composer install
+npm install
+```
+
+### 3. Environment Setup
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+Edit file `.env` sesuai konfigurasi database Anda:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=smk_attendance
+DB_USERNAME=root
+DB_PASSWORD=your_password
+```
+
+### 4. Database Migration & Seeding
+
+```bash
+php artisan migrate --seed
+```
+
+### 5. Storage Link
+
+```bash
+php artisan storage:link
+```
+
+### 6. Build Assets (Optional)
+
+```bash
+npm run build
+# atau untuk development
+npm run dev
+```
+
+### 7. Run Development Server
+
+```bash
+php artisan serve
+```
+
+Akses aplikasi di: `http://localhost:8000`
+
+## 👤 Default Login Credentials
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@smk.sch.id | admin123 |
+| Teacher | guru@smk.sch.id | guru123 |
+| Student | siswa1@smk.sch.id | siswa123 |
+| Parent | parent@smk.sch.id | parent123 |
 
 ## 📁 Struktur Direktori
 
@@ -36,128 +99,115 @@ smk-attendance-system/
 ├── app/
 │   ├── Http/
 │   │   ├── Controllers/
-│   │   │   ├── AttendanceController.php    # CRUD Absensi
-│   │   │   ├── CheckInController.php       # Check-in/out logic
-│   │   │   ├── DashboardController.php     # Dashboard semua role
+│   │   │   ├── AttendanceController.php
+│   │   │   ├── CheckInController.php
+│   │   │   ├── DashboardController.php
 │   │   │   └── ...
 │   │   └── Middleware/
-│   │       └── CheckRole.php               # Role checker
-│   └── Models/
-│       ├── User.php                        # Model user
-│       ├── Student.php                     # Model siswa
-│       ├── Attendance.php                  # Model absensi
-│       └── ...
+│   │       └── CheckRole.php
+│   ├── Models/
+│   │   ├── User.php
+│   │   ├── Student.php
+│   │   ├── Attendance.php
+│   │   └── ...
+│   └── Providers/
+├── bootstrap/
 ├── config/
-│   ├── attendance.php                      # Konfigurasi absensi
-│   └── database.php                        # Konfigurasi database
+│   ├── attendance.php
+│   └── database.php
 ├── database/
-│   └── migrations/                         # Migration files
+│   ├── migrations/
+│   └── seeders/
 ├── public/
-│   └── uploads/                            # Upload foto & QR
 ├── resources/
-│   └── views/                              # Blade templates
+│   └── views/
 ├── routes/
-│   └── web.php                             # Routing aplikasi
-└── README.md
+│   ├── web.php
+│   └── api.php
+└── ...
 ```
 
-## 🛠️ Teknologi
+## 🗄️ Database Schema
 
-- **Backend**: Laravel 10 (PHP 8.2+)
-- **Frontend**: Blade Templates + Tailwind CSS
-- **Database**: MySQL 8.0
-- **Cache**: Redis
-- **Authentication**: Laravel Sanctum
+### Tabel Utama:
+1. **users** - Data pengguna (admin, guru, siswa, orang tua)
+2. **students** - Data detail siswa
+3. **teachers** - Data detail guru
+4. **parents** - Data orang tua
+5. **class_rooms** - Data kelas
+6. **majors** - Data jurusan
+7. **attendances** - Data absensi (check-in & check-out)
+8. **parent_student** - Relasi orang tua dan siswa
+9. **settings** - Konfigurasi sistem
+10. **activity_logs** - Log aktivitas
 
-## ⚙️ Konfigurasi
+## ⚙️ Konfigurasi Absensi
 
-File `config/attendance.php`:
-- Jam masuk sekolah: 07:00
-- Toleransi keterlambatan: 15 menit
-- Radius geofencing: 100 meter
-- Wajib QR Code, GPS, dan Foto
+Edit file `config/attendance.php` atau melalui menu Settings di dashboard admin:
 
-## 📋 Instalasi
+- Jam masuk sekolah
+- Jam pulang sekolah
+- Toleransi keterlambatan
+- Koordinat GPS sekolah
+- Radius geofencing
+- Wajib/tidak foto dan QR code
 
-```bash
-# Clone repository
-git clone <repository-url>
-cd smk-attendance-system
+## 📊 API Endpoints
 
-# Install dependencies
-composer install
-npm install
+### Check-in
+```http
+POST /api/check-in
+Content-Type: multipart/form-data
 
-# Copy environment file
-cp .env.example .env
-
-# Generate application key
-php artisan key:generate
-
-# Setup database
-php artisan migrate --seed
-
-# Create storage link
-php artisan storage:link
-
-# Run development server
-php artisan serve
+{
+    "qr_code": "student-qr-code",
+    "latitude": -6.2088,
+    "longitude": 106.8456,
+    "photo": [image file]
+}
 ```
 
-## 🔐 Default Login
+### Check-out
+```http
+POST /api/check-out
+Content-Type: multipart/form-data
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@smk.sch.id | password |
-| Guru | guru@smk.sch.id | password |
-| Siswa | siswa@smk.sch.id | password |
+{
+    "latitude": -6.2088,
+    "longitude": 106.8456,
+    "photo": [image file]
+}
+```
 
-## 📊 Database Schema
+### Attendance History
+```http
+GET /api/attendance/history
+Authorization: Bearer {token}
+```
 
-Tabel utama:
-- `users` - Data pengguna semua role
-- `students` - Data siswa
-- `teachers` - Data guru
-- `parents` - Data orang tua
-- `attendances` - Record absensi
-- `class_rooms` - Data kelas
-- `majors` - Jurusan
-- `settings` - Pengaturan sistem
-
-## 🎯 Alur Absensi Siswa
-
-1. Login ke sistem
-2. Buka halaman Check-in
-3. Scan QR Code pribadi
-4. Ambil foto selfie
-5. Sistem validasi GPS
-6. Absensi berhasil → Status: Hadir/Telat
-
-Untuk pulang:
-1. Buka halaman Check-out
-2. Ambil foto selfie
-3. Sistem validasi GPS
-4. Absensi pulang berhasil
-
-## 📱 Responsive Design
-
-Aplikasi dapat diakses melalui:
-- Desktop/Laptop
-- Tablet
-- Smartphone (mobile-friendly)
-
-## 🔒 Keamanan
+## 🔐 Security Features
 
 - Password hashing dengan bcrypt
-- CSRF protection
-- SQL injection prevention
-- XSS protection
-- Rate limiting untuk API
+- CSRF Protection
+- Role-based Access Control (RBAC)
+- IP Address logging
+- Device fingerprinting
+- GPS validation
+- Photo verification
 
-## 📄 License
+## 📝 License
 
 MIT License
 
+## 👨‍💻 Developer
+
+Developed for SMK Attendance Management System
+
 ---
 
-**Dibuat untuk SMK Indonesia** © 2024
+**Catatan**: Pastikan server Anda memiliki ekstensi PHP berikut:
+- pdo_mysql
+- gd (untuk image processing)
+- json
+- mbstring
+- openssl
