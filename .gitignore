@@ -1,11 +1,12 @@
 ```
 # Dependencies
 vendor/
+composer.lock
 
 # Environment
 .env
 .env.local
-.env.*
+*.env.*
 
 # Logs
 *.log
@@ -14,24 +15,16 @@ vendor/
 *.tmp
 *.temp
 
-# OS generated files
+# OS specific
 .DS_Store
 Thumbs.db
-
-# PHP specific
-*.php~
-phpunit.xml.dist
-composer.lock
 
 # IDE
 .vscode/
 .idea/
 
-# Cache
-.cache/
-*.cache
-
-# Build artifacts
-dist/
-build/
+# PHP specific
+*.php~
+phpunit.xml.dist
+coverage/
 ```
