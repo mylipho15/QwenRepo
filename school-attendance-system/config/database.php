@@ -5,17 +5,6 @@ define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_NAME', 'school_attendance');
 
-// School Identity
-define('SCHOOL_NPSN', '12345678');
-define('SCHOOL_NAME', 'SMK Teknologi Nusantara');
-define('SCHOOL_ADDRESS', 'Jl. Pendidikan No. 123, Jakarta');
-define('SCHOOL_WEBSITE', 'https://smkteknologi.sch.id');
-define('SCHOOL_PHONE', '(021) 1234-5678');
-
-// Application Settings
-define('APP_NAME', 'Sistem Absensi Siswa');
-define('APP_VERSION', '1.0.0');
-
 // Create database connection
 function getDBConnection() {
     $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
@@ -28,7 +17,7 @@ function getDBConnection() {
     return $conn;
 }
 
-// Initialize database
+// Initialize database with comprehensive schema
 function initializeDatabase() {
     $conn = new mysqli(DB_HOST, DB_USER, DB_PASS);
     
@@ -37,98 +26,122 @@ function initializeDatabase() {
     }
     
     // Create database
-    $conn->query("CREATE DATABASE IF NOT EXISTS " . DB_NAME);
+    $conn->query("CREATE DATABASE IF NOT EXISTS " . DB_NAME . " CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
     $conn->select_db(DB_NAME);
     
-    // Create tables
+    // Read and execute SQL file if exists
+    $sqlFile = __DIR__ . '/../sql/install.sql';
+    if (file_exists($sqlFile)) {
+        $sql = file_get_contents($sqlFile);
+        $conn->multi_query($sql);
+        
+        // Process all results
+        while ($conn->more_results()) {
+            $conn->next_result();
+        }
+    } else {
+        // Fallback to inline table creation if SQL file doesn't exist
+        createTablesFallback($conn);
+    }
+    
+    $conn->close();
+}
+
+// Fallback table creation
+function createTablesFallback($conn) {
     $tables = [
+        "settings" => "CREATE TABLE IF NOT EXISTS settings (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            npsn VARCHAR(20) DEFAULT '',
+            school_name VARCHAR(100) DEFAULT 'Sekolah Demo',
+            address TEXT,
+            website VARCHAR(100) DEFAULT '',
+            phone VARCHAR(20) DEFAULT '',
+            check_in_start TIME DEFAULT '06:30:00',
+            check_in_end TIME DEFAULT '07:30:00',
+            check_out_start TIME DEFAULT '14:00:00',
+            theme_mode ENUM('light','dark') DEFAULT 'light',
+            theme_style ENUM('fluent','material','glass','cyberpunk') DEFAULT 'fluent',
+            bg_opacity DECIMAL(3,2) DEFAULT '0.90',
+            bg_blur INT DEFAULT '5',
+            logo_path VARCHAR(255) DEFAULT NULL,
+            bg_image_path VARCHAR(255) DEFAULT NULL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        
         "users" => "CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
             username VARCHAR(50) UNIQUE NOT NULL,
             password VARCHAR(255) NOT NULL,
+            role ENUM('admin','officer') NOT NULL,
             full_name VARCHAR(100) NOT NULL,
-            role ENUM('admin', 'petugas') NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-        )",
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
         
         "students" => "CREATE TABLE IF NOT EXISTS students (
             id INT AUTO_INCREMENT PRIMARY KEY,
             nipd VARCHAR(20) UNIQUE NOT NULL,
             name VARCHAR(100) NOT NULL,
             class VARCHAR(20) NOT NULL,
-            major VARCHAR(50) NOT NULL,
+            major VARCHAR(50) DEFAULT 'Umum',
+            status ENUM('active','inactive') DEFAULT 'active',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        
+        "officer_schedules" => "CREATE TABLE IF NOT EXISTS officer_schedules (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            date DATE NOT NULL,
+            user_id INT NOT NULL,
+            shift ENUM('morning','afternoon','full') DEFAULT 'full',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-        )",
+            INDEX idx_date (date),
+            INDEX idx_user (user_id),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
         
         "attendance" => "CREATE TABLE IF NOT EXISTS attendance (
             id INT AUTO_INCREMENT PRIMARY KEY,
             student_id INT NOT NULL,
             date DATE NOT NULL,
-            check_in TIME NULL,
-            check_out TIME NULL,
-            status ENUM('present', 'sick', 'permission', 'alpha') DEFAULT 'present',
-            is_late BOOLEAN DEFAULT FALSE,
-            left_early BOOLEAN DEFAULT FALSE,
-            notes TEXT NULL,
-            recorded_by INT NULL,
+            time_in TIME DEFAULT NULL,
+            time_out TIME DEFAULT NULL,
+            status ENUM('present','late','early_leave','sick','permission','alpha') DEFAULT 'present',
+            notes TEXT,
+            recorded_by INT DEFAULT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
-            FOREIGN KEY (recorded_by) REFERENCES users(id) ON DELETE SET NULL,
-            UNIQUE KEY unique_attendance (student_id, date)
-        )",
-        
-        "settings" => "CREATE TABLE IF NOT EXISTS settings (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            setting_key VARCHAR(50) UNIQUE NOT NULL,
-            setting_value TEXT NULL,
-            setting_type VARCHAR(20) DEFAULT 'string',
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-        )",
-        
-        "permissions" => "CREATE TABLE IF NOT EXISTS permissions (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            student_id INT NOT NULL,
-            permission_type ENUM('late', 'leave_school', 'early_leave') NOT NULL,
-            start_time DATETIME NOT NULL,
-            end_time DATETIME NULL,
-            reason TEXT NOT NULL,
-            status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
-            recorded_by INT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_student_date (student_id, date),
             FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
             FOREIGN KEY (recorded_by) REFERENCES users(id) ON DELETE SET NULL
-        )"
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
     ];
     
     foreach ($tables as $table_name => $sql) {
         $conn->query($sql);
     }
     
-    // Insert default admin user (password: admin123)
-    $admin_password = password_hash('admin123', PASSWORD_DEFAULT);
-    $conn->query("INSERT IGNORE INTO users (username, password, full_name, role) 
-                  VALUES ('admin', '$admin_password', 'Administrator', 'admin')");
+    // Insert default data
+    insertDefaultData($conn);
+}
+
+// Insert default data
+function insertDefaultData($conn) {
+    // Default settings
+    $conn->query("INSERT INTO settings (id, npsn, school_name, address, website, phone) 
+                  VALUES (1, '12345678', 'SMK Teknologi Nusantara', 'Jl. Pendidikan No. 1, Jakarta', 'https://smkteknologi.sch.id', '021-555-0199')
+                  ON DUPLICATE KEY UPDATE school_name=school_name");
     
-    // Insert default settings
-    $settings = [
-        ['check_in_start', '07:00', 'time'],
-        ['check_in_end', '08:00', 'time'],
-        ['check_out_start', '15:00', 'time'],
-        ['check_out_end', '16:00', 'time'],
-        ['late_threshold', '15', 'number'],
-        ['theme', 'fluent', 'string'],
-        ['mode', 'light', 'string']
-    ];
+    // Default users (password: admin123 and petugas123)
+    $admin_hash = password_hash('admin123', PASSWORD_DEFAULT);
+    $officer_hash = password_hash('petugas123', PASSWORD_DEFAULT);
     
-    foreach ($settings as $setting) {
-        $conn->query("INSERT IGNORE INTO settings (setting_key, setting_value, setting_type) 
-                      VALUES ('{$setting[0]}', '{$setting[1]}', '{$setting[2]}')");
-    }
+    $conn->query("INSERT INTO users (username, password, role, full_name) 
+                  VALUES ('admin', '$admin_hash', 'admin', 'Administrator Utama')
+                  ON DUPLICATE KEY UPDATE username=username");
     
-    $conn->close();
+    $conn->query("INSERT INTO users (username, password, role, full_name) 
+                  VALUES ('petugas', '$officer_hash', 'officer', 'Petugas Absensi 1')
+                  ON DUPLICATE KEY UPDATE username=username");
 }
 
 // Session management
@@ -147,13 +160,13 @@ function isAdmin() {
     return isLoggedIn() && $_SESSION['role'] === 'admin';
 }
 
-function isPetugas() {
-    return isLoggedIn() && $_SESSION['role'] === 'petugas';
+function isOfficer() {
+    return isLoggedIn() && $_SESSION['role'] === 'officer';
 }
 
 function requireLogin() {
     if (!isLoggedIn()) {
-        header('Location: login.php');
+        header('Location: ../login.php');
         exit;
     }
 }
@@ -166,8 +179,17 @@ function requireAdmin() {
     }
 }
 
+function requireOfficer() {
+    requireLogin();
+    if (!isOfficer() && !isAdmin()) {
+        header('Location: dashboard.php?error=unauthorized');
+        exit;
+    }
+}
+
 function logout() {
     startSession();
+    session_unset();
     session_destroy();
     header('Location: index.php');
     exit;
@@ -180,20 +202,49 @@ function redirect($url) {
 }
 
 function sanitize($data) {
-    return htmlspecialchars(strip_tags(trim($data)));
+    return htmlspecialchars(strip_tags(trim($data)), ENT_QUOTES, 'UTF-8');
 }
 
 function getSetting($key, $default = null) {
+    static $cache = [];
+    
+    if (isset($cache[$key])) {
+        return $cache[$key];
+    }
+    
     $conn = getDBConnection();
-    $stmt = $conn->prepare("SELECT setting_value FROM settings WHERE setting_key = ?");
-    $stmt->bind_param("s", $key);
+    $stmt = $conn->prepare("SELECT * FROM settings WHERE id = 1");
     $stmt->execute();
     $result = $stmt->get_result();
     
     if ($row = $result->fetch_assoc()) {
         $stmt->close();
         $conn->close();
-        return $row['setting_value'];
+        
+        // Map database columns to setting keys
+        $mapping = [
+            'npsn' => 'npsn',
+            'school_name' => 'school_name',
+            'address' => 'address',
+            'website' => 'website',
+            'phone' => 'phone',
+            'check_in_start' => 'check_in_start',
+            'check_in_end' => 'check_in_end',
+            'check_out_start' => 'check_out_start',
+            'theme_mode' => 'theme_mode',
+            'theme_style' => 'theme_style',
+            'bg_opacity' => 'bg_opacity',
+            'bg_blur' => 'bg_blur',
+            'logo_path' => 'logo_path',
+            'bg_image_path' => 'bg_image_path'
+        ];
+        
+        if (isset($mapping[$key]) && isset($row[$mapping[$key]])) {
+            $cache[$key] = $row[$mapping[$key]];
+            return $cache[$key];
+        }
+        
+        return $default;
     }
     
     $stmt->close();
@@ -203,16 +254,53 @@ function getSetting($key, $default = null) {
 
 function updateSetting($key, $value) {
     $conn = getDBConnection();
-    $stmt = $conn->prepare("INSERT INTO settings (setting_key, setting_value) 
-                            VALUES (?, ?) 
-                            ON DUPLICATE KEY UPDATE setting_value = ?");
-    $stmt->bind_param("sss", $key, $value, $value);
+    
+    // Map setting keys to database columns
+    $mapping = [
+        'npsn' => 'npsn',
+        'school_name' => 'school_name',
+        'address' => 'address',
+        'website' => 'website',
+        'phone' => 'phone',
+        'check_in_start' => 'check_in_start',
+        'check_in_end' => 'check_in_end',
+        'check_out_start' => 'check_out_start',
+        'theme_mode' => 'theme_mode',
+        'theme_style' => 'theme_style',
+        'bg_opacity' => 'bg_opacity',
+        'bg_blur' => 'bg_blur',
+        'logo_path' => 'logo_path',
+        'bg_image_path' => 'bg_image_path'
+    ];
+    
+    if (!isset($mapping[$key])) {
+        $conn->close();
+        return false;
+    }
+    
+    $column = $mapping[$key];
+    $stmt = $conn->prepare("UPDATE settings SET $column = ? WHERE id = 1");
+    $stmt->bind_param("s", $value);
     $result = $stmt->execute();
     $stmt->close();
     $conn->close();
+    
     return $result;
 }
 
-// Initialize database on first load
+function getAllSettings() {
+    $conn = getDBConnection();
+    $result = $conn->query("SELECT * FROM settings WHERE id = 1");
+    
+    if ($row = $result->fetch_assoc()) {
+        $conn->close();
+        return $row;
+    }
+    
+    $conn->close();
+    return [];
+}
+
+// Auto-initialize database on include
 initializeDatabase();
 ?>
