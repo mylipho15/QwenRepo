@@ -96,7 +96,10 @@ school-attendance-system/
 │   ├── reports.php
 │   └── settings.php
 ├── petugas/                # Panel Petugas Absensi
-│   └── dashboard.php
+│   ├── dashboard.php
+│   ├── check-in-out.php
+│   ├── permission.php
+│   └── special-permission.php
 ├── config/                 # Konfigurasi
 │   └── database.php
 ├── css/                    # Stylesheet
@@ -109,6 +112,9 @@ school-attendance-system/
 │   ├── petugas-header.php
 │   └── petugas-footer.php
 ├── images/                 # Asset gambar
+├── scripts/                # Script instalasi
+│   └── setup.php
+├── composer.json           # Dependency management
 ├── index.php               # Halaman login
 ├── login.php               # Proses login
 └── logout.php              # Proses logout
