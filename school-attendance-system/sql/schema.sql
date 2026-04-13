@@ -155,6 +155,38 @@ CREATE TABLE `school_identity` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
+-- Table: petugas
+-- Description: Attendance officer accounts
+-- ============================================
+DROP TABLE IF EXISTS `petugas`;
+CREATE TABLE `petugas` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `username` VARCHAR(50) UNIQUE NOT NULL,
+  `password` VARCHAR(255) NOT NULL,
+  `nama_lengkap` VARCHAR(100) NOT NULL,
+  `is_active` BOOLEAN DEFAULT TRUE,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX `idx_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
+-- Table: jadwal_petugas
+-- Description: Daily attendance officer rotation schedule
+-- ============================================
+DROP TABLE IF EXISTS `jadwal_petugas`;
+CREATE TABLE `jadwal_petugas` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `tanggal` DATE NOT NULL,
+  `petugas_id` INT NOT NULL,
+  `keterangan` VARCHAR(255) DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`petugas_id`) REFERENCES `petugas`(`id`) ON DELETE CASCADE,
+  UNIQUE KEY `unique_tanggal` (`tanggal`),
+  INDEX `idx_tanggal` (`tanggal`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
 -- Table: activity_logs
 -- Description: System activity logs
 -- ============================================
@@ -224,7 +256,20 @@ INSERT INTO `settings` (`setting_key`, `setting_value`, `setting_type`, `setting
 ('npsn', '12345678', 'string', 'NPSN', 'school', FALSE),
 ('allow_self_checkin', '1', 'boolean', 'Izinkan Check-in Mandiri', 'attendance', FALSE),
 ('require_photo', '0', 'boolean', 'Wajibkan Foto saat Check-in', 'attendance', FALSE),
-('enable_notifications', '1', 'boolean', 'Aktifkan Notifikasi', 'general', FALSE);
+('enable_notifications', '1', 'boolean', 'Aktifkan Notifikasi', 'general', FALSE),
+('bg_opacity', '0.9', 'float', 'Transparansi Background', 'appearance', TRUE),
+('bg_blur', '0', 'int', 'Blur Background', 'appearance', TRUE),
+('logo_path', '', 'string', 'Path Logo Sekolah', 'school', TRUE),
+('bg_image_path', '', 'string', 'Path Background Image', 'appearance', TRUE);
+
+-- Default Petugas Data (password: petugas123)
+INSERT INTO `petugas` (`username`, `password`, `nama_lengkap`, `is_active`) 
+VALUES ('petugas', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', 'Petugas Absensi', TRUE);
+
+-- Default Jadwal Petugas (Hari Ini)
+INSERT INTO `jadwal_petugas` (`tanggal`, `petugas_id`, `keterangan`) 
+SELECT CURDATE(), id, 'Jadwal Hari Ini' FROM petugas WHERE username = 'petugas'
+ON DUPLICATE KEY UPDATE petugas_id = VALUES(petugas_id);
 
 -- Dashboard Widgets for Admin
 INSERT INTO `dashboard_widgets` (`user_id`, `widget_name`, `widget_type`, `position`, `is_visible`) VALUES
