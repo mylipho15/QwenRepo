@@ -5,14 +5,30 @@ $conn = getDBConnection();
 $message = '';
 $message_type = '';
 
+// Handle form submission for school identity settings
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'identity') {
+    $settings = [
+        'npsn' => sanitize($_POST['npsn']),
+        'school_name' => sanitize($_POST['school_name']),
+        'address' => sanitize($_POST['address']),
+        'website' => sanitize($_POST['website']),
+        'phone' => sanitize($_POST['phone'])
+    ];
+
+    foreach ($settings as $key => $value) {
+        updateSetting($key, $value);
+    }
+
+    $message = 'Identitas sekolah berhasil disimpan!';
+    $message_type = 'success';
+}
+
 // Handle form submission for attendance settings
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'attendance') {
     $settings = [
         'check_in_start' => $_POST['check_in_start'],
         'check_in_end' => $_POST['check_in_end'],
-        'check_out_start' => $_POST['check_out_start'],
-        'check_out_end' => $_POST['check_out_end'],
-        'late_threshold' => (int)$_POST['late_threshold']
+        'check_out_start' => $_POST['check_out_start']
     ];
 
     foreach ($settings as $key => $value) {
@@ -26,8 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 // Handle form submission for appearance settings (theme, mode, bg)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'appearance') {
     $settings = [
-        'theme' => $_POST['theme'],
-        'mode' => $_POST['mode'],
+        'theme_style' => $_POST['theme_style'],
+        'theme_mode' => $_POST['theme_mode'],
         'bg_opacity' => floatval($_POST['bg_opacity']),
         'bg_blur' => (int)$_POST['bg_blur']
     ];

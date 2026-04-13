@@ -1,202 +1,322 @@
-# Sistem Absensi Siswa Berbasis Web
+# 📚 SISTEM ABSENSI SISWA BERBASIS WEB
 
-## Deskripsi
-Sistem Absensi Siswa adalah aplikasi web lengkap untuk mengelola absensi siswa di sekolah dengan fitur multi-theme dan multi-mode.
+Sistem manajemen absensi siswa lengkap dengan panel Admin dan Petugas, mendukung multi-theme, light/dark mode, dan rotasi petugas harian.
 
-## Fitur Utama
+## ✨ Fitur Utama
 
-### Identitas Sekolah
-- NPSN
-- Nama Sekolah
-- Alamat
-- Website
-- Telepon
+### 🔐 Sistem Login Multi-Role
+- **Administrator**: Akses penuh ke semua fitur sistem
+- **Petugas Absensi**: Akses untuk input absensi harian dan izin siswa
 
-### Panel Admin
-- **Beranda/Dashboard** - Statistik dan ringkasan absensi
-- **Data Absensi** - Kelola jam datang, jam pulang, telat, pulang awal
-- **Data Siswa** - Kelola data siswa (NIPD, Nama, Kelas, Jurusan)
-- **Rekap Absensi** - Laporan bulanan dan mingguan
-- **Pengaturan** - Konfigurasi sistem absensi
+### 🏫 Panel Administrator
+- **Dashboard**: Statistik real-time (siswa, kehadiran, keterlambatan, dll)
+- **Data Absensi**: CRUD lengkap (Add/Edit/Update/Remove)
+- **Data Siswa**: Manajemen data siswa dengan NIPD, Nama, Kelas, Jurusan
+- **Rekap Absensi**: Laporan bulanan dan mingguan dengan export
+- **Pengaturan Lengkap**:
+  - Identitas Sekolah (NPSN, Nama, Alamat, Website, Telepon)
+  - Jam Operasional Absensi
+  - Pengaturan Petugas (Jadwal Rotasi Harian)
+  - Tampilan & Tema (Light/Dark Mode, Multi-Theme CSS)
+  - Upload Logo Sekolah (Max 500x500px, <3MB)
+  - Custom Background Image (JPG/PNG)
+  - Kontrol Transparansi & Blur Background
+  - Ganti Password Admin & Petugas
 
-### Panel Petugas Absensi
-- **Beranda/Dashboard** - Ringkasan aktivitas hari ini
-- **Absensi Jam Masuk/Keluar** - Input absensi harian
-- **Absensi Berhalangan** - Catat sakit/izin/alfa
-- **Izin Khusus** - Telat/keluar lingkungan/pulang awal
+### 👨‍💼 Panel Petugas Absensi
+- **Dashboard**: Ringkasan aktivitas harian
+- **Check In/Out**: Input absensi masuk dan pulang siswa
+- **Absensi Berhalangan**: Input sakit/izin/alfa
+- **Izin Khusus**: Telat, keluar lingkungan sekolah, pulang awal
 
-### Fitur Tampilan
-- **Light/Dark Mode**: White, Light Gray, Dark Gray, Black
-- **Multi-Theme CSS**: 
-  - Fluent UI (Default)
-  - Material UI
-  - Glassmorphism
-  - Cyberpunk
-- **Customizable Dashboard** - Panel yang dapat disesuaikan
+### 🎨 Customization
+- **4 Mode Warna**: White, Light Gray, Dark Gray, Black
+- **4 Tema CSS**: Fluent UI (Default), Material UI, Glassmorphism, Cyberpunk
+- **Background Custom**: Upload gambar sendiri dengan kontrol opacity & blur
+- **Logo Sekolah**: Upload logo dengan validasi otomatis
 
-### Manajemen Data
-- Full CRUD untuk Data Absensi (Add/Edit/Update/Remove)
-- Full CRUD untuk Data Siswa (Add/Edit/Update/Remove)
+### 📊 Database & Automation
+- Auto-create database & tables saat pertama kali akses
+- SQL schema lengkap dengan dummy data
+- Foreign key constraints untuk integritas data
+- Jadwal petugas harian dengan rotasi otomatis
 
-## Teknologi
-- **Backend**: PHP 7.4+
-- **Database**: MySQL/MariaDB
-- **Frontend**: HTML5, CSS3, JavaScript
-- **Icons**: Font Awesome 6
-- **Session Management**: PHP Sessions
+---
 
-## Instalasi
+## 📁 Struktur File
 
-### Persyaratan
-1. Web Server (Apache/Nginx)
-2. PHP 7.4 atau lebih tinggi
-3. MySQL 5.7 atau MariaDB 10.3
+```
+school-attendance-system/
+├── admin/                      # Panel Administrator
+│   ├── dashboard.php          # Dashboard utama
+│   ├── attendance.php         # Manajemen absensi (CRUD)
+│   ├── students.php           # Manajemen siswa (CRUD)
+│   ├── add-student.php        # Form tambah siswa
+│   ├── add-attendance.php     # Form tambah absensi
+│   ├── reports.php            # Rekap & laporan
+│   ├── settings.php           # Pengaturan lengkap
+│   └── manage-petugas.php     # Kelola jadwal petugas
+│
+├── petugas/                    # Panel Petugas
+│   ├── dashboard.php          # Dashboard petugas
+│   ├── check-in-out.php       # Check in/out siswa
+│   ├── permission.php         # Izin sakit/alfa/izin
+│   └── special-permission.php # Izin telat/keluar/pulang awal
+│
+├── config/                     # Konfigurasi
+│   └── database.php           # Koneksi DB & helper functions
+│
+├── includes/                   # Komponen UI
+│   ├── admin-header.php       # Header admin
+│   ├── admin-footer.php       # Footer admin
+│   ├── petugas-header.php     # Header petugas
+│   └── petugas-footer.php     # Footer petugas
+│
+├── css/                        # Stylesheet
+│   └── styles.css             # Multi-theme CSS (879 baris)
+│
+├── js/                         # JavaScript
+│   └── main.js                # Interaksi UI (377 baris)
+│
+├── sql/                        # Database Schema
+│   ├── install.sql            # Schema lengkap + dummy data
+│   ├── schema.sql             # Schema only
+│   └── update_schema.sql      # Update script
+│
+├── libs/                       # Library Helper
+│   ├── DatabaseHelper.php     # DB abstraction
+│   └── ThemeManager.php       # Theme management
+│
+├── scripts/                    # Automation Scripts
+│   ├── setup.php              # Setup wizard
+│   └── install-db.php         # Database installer
+│
+├── uploads/                    # User Uploads
+│   ├── logos/                 # Logo sekolah
+│   └── backgrounds/           # Background images
+│
+├── index.php                   # Landing page & login
+├── login.php                   # Proses login
+├── logout.php                  # Proses logout
+├── composer.json               # PHP dependencies
+├── README.md                   # Dokumentasi ini
+└── INSTALL.md                  # Panduan instalasi detail
+```
 
-### Langkah Instalasi
+**Total Files**: 32 files  
+**Lines of Code**: ~6,000+ baris
 
-1. **Clone atau Extract** project ke folder web server Anda
+---
+
+## 🚀 Instalasi
+
+### Metode 1: Otomatis (Recommended)
+
+1. **Copy ke Web Server**
    ```bash
    cp -r school-attendance-system /var/www/html/
    ```
 
-2. **Konfigurasi Database**
-   - Edit file `config/database.php`
-   - Sesuaikan konfigurasi database:
-     ```php
-     define('DB_HOST', 'localhost');
-     define('DB_USER', 'root');
-     define('DB_PASS', '');
-     define('DB_NAME', 'school_attendance');
-     ```
+2. **Akses Browser**
+   ```
+   http://localhost/school-attendance-system/
+   ```
+   Database akan dibuat otomatis!
 
-3. **Buat Database**
-   - Database akan dibuat otomatis saat pertama kali diakses
-   - Atau buat manual:
-     ```sql
-     CREATE DATABASE school_attendance;
-     ```
+3. **Login**
+   - Admin: `admin` / `admin123`
+   - Petugas: `petugas` / `petugas123`
 
-4. **Akses Aplikasi**
-   - Buka browser dan akses: `http://localhost/school-attendance-system/`
+### Metode 2: Manual dengan Composer
 
-5. **Login Default**
-   - **Username**: admin
-   - **Password**: admin123
-
-## Struktur Folder
-
-```
-school-attendance-system/
-├── admin/                  # Panel Administrator
-│   ├── dashboard.php
-│   ├── attendance.php
-│   ├── students.php
-│   ├── add-student.php
-│   ├── add-attendance.php
-│   ├── reports.php
-│   └── settings.php
-├── petugas/                # Panel Petugas Absensi
-│   ├── dashboard.php
-│   ├── check-in-out.php
-│   ├── permission.php
-│   └── special-permission.php
-├── config/                 # Konfigurasi
-│   └── database.php
-├── css/                    # Stylesheet
-│   └── styles.css
-├── js/                     # JavaScript
-│   └── main.js
-├── includes/               # Komponen UI
-│   ├── admin-header.php
-│   ├── admin-footer.php
-│   ├── petugas-header.php
-│   └── petugas-footer.php
-├── images/                 # Asset gambar
-├── scripts/                # Script instalasi
-│   └── setup.php
-├── composer.json           # Dependency management
-├── index.php               # Halaman login
-├── login.php               # Proses login
-└── logout.php              # Proses logout
+```bash
+cd school-attendance-system
+composer install
+php scripts/setup.php
+# Akses via browser
 ```
 
-## Penggunaan
+### Metode 3: Import SQL Manual
 
-### Admin Panel
-1. Login dengan akun administrator
-2. Kelola data siswa di menu "Data Siswa"
-3. Lihat dan kelola absensi di menu "Data Absensi"
-4. Cetak laporan di menu "Rekap Absensi"
-5. Atur konfigurasi di menu "Pengaturan"
+```bash
+# 1. Buat database
+mysql -u root -p -e "CREATE DATABASE school_attendance"
 
-### Petugas Panel
-1. Login dengan akun petugas
-2. Input absensi masuk/keluar
-3. Catat ketidakhadiran (sakit/izin/alfa)
-4. Kelola izin khusus
+# 2. Import schema
+mysql -u root -p school_attendance < sql/install.sql
 
-### Ganti Tema
-- Klik tombol palet warna di header untuk mengganti tema
-- Shortcut keyboard: `Ctrl + T`
-
-### Ganti Mode
-- Klik tombol bulan/matahari di header untuk mengganti mode
-- Shortcut keyboard: `Ctrl + M`
-
-## Customization
-
-### Menambah Tema Baru
-Edit file `css/styles.css` dan tambahkan variabel CSS baru:
-
-```css
-[data-theme="your-theme"] {
-    --bg-primary: #ffffff;
-    --accent-primary: #0078d4;
-    /* ... variabel lainnya */
-}
+# 3. Akses aplikasi
+http://localhost/school-attendance-system/
 ```
 
-### Menambah Mode Baru
-Edit file `css/styles.css` dan tambahkan mode baru:
+### Persyaratan Server
 
-```css
-[data-mode="your-mode"] {
-    --bg-primary: #f5f5f5;
-    --text-primary: #333333;
-    /* ... variabel lainnya */
-}
-```
-
-## Keamanan
-
-1. **Password Hashing**: Menggunakan bcrypt untuk password
-2. **SQL Injection Prevention**: Prepared statements untuk semua query
-3. **XSS Protection**: Sanitasi input menggunakan htmlspecialchars()
-4. **Session Management**: Session-based authentication
-
-## Troubleshooting
-
-### Database Connection Failed
-- Pastikan MySQL/MariaDB berjalan
-- Periksa kredensial di `config/database.php`
-- Pastikan user database memiliki akses yang cukup
-
-### Page Not Loading
-- Periksa error log PHP
-- Pastikan mod_rewrite aktif (jika menggunakan Apache)
-- Periksa permission folder
-
-### Theme Tidak Berfungsi
-- Clear browser cache
-- Pastikan JavaScript diaktifkan
-- Periksa console browser untuk error
-
-## License
-Software ini dibuat untuk keperluan edukasi dan dapat digunakan secara gratis.
-
-## Support
-Untuk bantuan teknis, silakan hubungi administrator sistem.
+- **PHP**: 7.4 atau lebih tinggi
+- **MySQL/MariaDB**: 5.7 atau lebih tinggi
+- **Web Server**: Apache/Nginx
+- **Extensions**: mysqli, gd, fileinfo
+- **Mod Rewrite**: Enabled (Apache)
 
 ---
-**Versi**: 1.0.0  
-**Tanggal**: 2024
+
+## ⚙️ Konfigurasi Database
+
+Edit file `config/database.php` jika perlu:
+
+```php
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');
+define('DB_PASS', '');
+define('DB_NAME', 'school_attendance');
+```
+
+---
+
+## 🎯 Cara Menggunakan Fitur Baru
+
+### 1. Upload Logo Sekolah
+1. Login sebagai Admin
+2. Masuk ke **Settings** → **Tampilan & Background**
+3. Upload file JPG/PNG (max 500x500px, <3MB)
+4. Klik **Upload Logo**
+
+### 2. Custom Background
+1. Login sebagai Admin
+2. Masuk ke **Settings** → **Tampilan & Background**
+3. Upload gambar background (JPG/PNG, max 5MB)
+4. Atur slider **Transparansi** (0.1 - 1.0)
+5. Atur slider **Blur** (0 - 20px)
+6. Simpan perubahan
+
+### 3. Atur Jadwal Petugas
+1. Login sebagai Admin
+2. Masuk ke **Settings** → **Pengaturan Petugas**
+3. Pilih tanggal dari kalender
+4. Pilih petugas yang bertugas
+5. Pilih shift (Pagi/Siang/Full Day)
+6. Klik **Tambah Jadwal**
+
+### 4. Ganti Password
+1. Login sebagai Admin
+2. Masuk ke **Settings** → **Keamanan**
+3. Pilih role (Admin/Petugas)
+4. Masukkan password baru (min 6 karakter)
+5. Konfirmasi password
+6. Klik **Ganti Password**
+
+### 5. Rotasi Petugas Harian
+- Sistem otomatis menampilkan petugas yang bertugas hari ini di dashboard
+- Jadwal dapat diatur jauh-jauh hari
+- Petugas dapat melihat jadwal mereka di dashboard
+
+---
+
+## 🗄️ Struktur Database
+
+### Tables
+
+| Table | Description |
+|-------|-------------|
+| `settings` | Konfigurasi sekolah & tampilan |
+| `users` | User accounts (admin & officer) |
+| `students` | Data siswa |
+| `officer_schedules` | Jadwal tugas petugas harian |
+| `attendance` | Record absensi siswa |
+
+### Default Users
+
+| Username | Password | Role |
+|----------|----------|------|
+| admin | admin123 | Administrator |
+| petugas | petugas123 | Petugas Absensi |
+
+### Dummy Data
+
+SQL schema sudah include contoh data:
+- 10 siswa sample
+- 3 record absensi sample
+- Jadwal petugas minggu ini
+- Settings default
+
+---
+
+## 🎨 Tema & Customization
+
+### Available Themes
+1. **Fluent UI** (Default) - Modern Microsoft-style
+2. **Material UI** - Google Material Design
+3. **Glassmorphism** - Frosted glass effect
+4. **Cyberpunk** - Futuristic neon style
+
+### Color Modes
+- **White**: Clean white background
+- **Light Gray**: Soft gray tones
+- **Dark Gray**: Dark gray theme
+- **Black**: Pure black OLED-friendly
+
+### CSS Variables
+```css
+:root {
+    --theme-mode: light;
+    --theme-style: fluent;
+    --bg-opacity: 0.90;
+    --bg-blur: 5px;
+    --primary-color: #0078d4;
+}
+```
+
+---
+
+## 🔒 Keamanan
+
+- Password hashing dengan `password_hash()` (bcrypt)
+- Prepared statements untuk mencegah SQL injection
+- XSS protection dengan `htmlspecialchars()`
+- Session-based authentication
+- File upload validation (type & size)
+- Role-based access control (RBAC)
+
+---
+
+## 📝 Changelog
+
+### Version 2.0 (Latest)
+✅ Penambahan pengaturan identitas sekolah  
+✅ Upload logo sekolah (500x500px, <3MB)  
+✅ Custom background image dengan opacity & blur  
+✅ Pengaturan jadwal petugas harian  
+✅ Fitur ganti password admin & petugas  
+✅ Panel login dengan opsi admin/petugas  
+✅ Perbaikan query SQL & struktur database  
+✅ Dummy data lengkap untuk testing  
+✅ Auto database initialization  
+
+### Version 1.0
+- Initial release
+- Basic CRUD operations
+- Single theme support
+
+---
+
+## 🤝 Support & Contribution
+
+Jika menemukan bug atau ingin menambahkan fitur:
+1. Fork repository ini
+2. Create feature branch
+3. Commit changes
+4. Push to branch
+5. Create Pull Request
+
+---
+
+## 📄 License
+
+Sistem Absensi Siswa - Open Source for Educational Purpose
+
+---
+
+## 📞 Contact
+
+Developed for Indonesian School Attendance Management System
+
+**Happy Coding! 🎉**
