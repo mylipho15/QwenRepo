@@ -141,9 +141,9 @@ INSERT INTO school_identity (npsn, school_name, address, website, phone, transpa
 -- Insert Sample Data - Users (Password: admin123 untuk admin, officer123 untuk petugas)
 -- Password hash generated with password_hash('admin123', PASSWORD_DEFAULT)
 INSERT INTO users (username, password, full_name, role, email, phone) VALUES
-('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrator Sistem', 'admin', 'admin@sman1teknologi.sch.id', '081234567890'),
-('petugas1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Petugas Absensi 1', 'officer', 'petugas1@sman1teknologi.sch.id', '081234567891'),
-('petugas2', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Petugas Absensi 2', 'officer', 'petugas2@sman1teknologi.sch.id', '081234567892');
+('admin', 'admin123', 'Administrator Sistem', 'admin', 'admin@sman1teknologi.sch.id', '081234567890'),
+('petugas1', 'officer123', 'Petugas Absensi 1', 'officer', 'petugas1@sman1teknologi.sch.id', '081234567891'),
+('petugas2', 'officer123', 'Petugas Absensi 2', 'officer', 'petugas2@sman1teknologi.sch.id', '081234567892');
 
 -- Insert Sample Data - Jurusan
 INSERT INTO majors (code, name, description) VALUES

@@ -4,12 +4,14 @@
  * Sistem Absensi Siswa Berbasis Web
  */
 
-// Load dependencies
+// Load dependencies - Order matters!
 require_once __DIR__ . '/includes/Database.php';
 require_once __DIR__ . '/includes/Auth.php';
 require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/libs/Config.php';
+require_once __DIR__ . '/libs/Validator.php';
 
-// Initialize Auth
+// Initialize Auth (will start session internally)
 $auth = Auth::getInstance();
 
 // Get page parameter
