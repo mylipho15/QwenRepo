@@ -1,6 +1,12 @@
 <?php
+// Start session FIRST
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once '../../config/database.php';
 checkAuth('admin');
+
 
 $db = Database::getInstance()->getConnection();
 $school = getSchoolInfo();
@@ -77,7 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $success = 'Pengaturan berhasil disimpan!';
     $school = getSchoolInfo(); // Refresh
-}
 
 $page_title = 'Pengaturan - Admin';
 include '../../includes/header.php';

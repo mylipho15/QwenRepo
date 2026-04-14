@@ -1,6 +1,12 @@
 <?php
+// Start session FIRST
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once '../../config/database.php';
 checkAuth('admin');
+
 
 $db = Database::getInstance()->getConnection();
 $school = getSchoolInfo();
@@ -44,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $success = 'Data absensi berhasil dihapus!';
             break;
     }
-}
 
 // Get filters
 $filter_tanggal = $_GET['tanggal'] ?? date('Y-m-d');
@@ -57,7 +62,6 @@ $params = [$filter_tanggal];
 if ($filter_kelas) {
     $where[] = "s.kelas_id = ?";
     $params[] = $filter_kelas;
-}
 
 $sql = "SELECT a.*, s.nipd, s.nama, k.nama_kelas, 
                CASE WHEN a.jam_datang > '07:30:00' THEN 'telat' ELSE 'tepat_waktu' END as status_datang_calc,

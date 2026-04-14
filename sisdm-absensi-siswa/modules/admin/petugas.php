@@ -1,6 +1,12 @@
 <?php
+// Start session FIRST
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once '../../config/database.php';
 checkAuth('admin');
+
 
 $db = Database::getInstance()->getConnection();
 $school = getSchoolInfo();
@@ -23,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$tanggal, $user_id]);
     }
     $success = 'Petugas harian berhasil diatur!';
-}
 
 // Get petugas list (only petugas role)
 $stmt = $db->query("SELECT * FROM users WHERE role = 'petugas' ORDER BY nama_lengkap");

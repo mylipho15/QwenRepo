@@ -1,12 +1,19 @@
 <?php
+// Start session FIRST before any output
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once 'config/database.php';
 
 // Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['role'] === 'admin') {
-        redirect('modules/admin/dashboard.php');
+        header("Location: modules/admin/dashboard.php");
+        exit();
     } else {
-        redirect('modules/petugas/dashboard.php');
+        header("Location: modules/petugas/dashboard.php");
+        exit();
     }
 }
 

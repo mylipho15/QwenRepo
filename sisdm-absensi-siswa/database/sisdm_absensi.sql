@@ -102,9 +102,10 @@ INSERT INTO `sekolah` (`npsn`, `nama_sekolah`, `alamat`, `website`, `telepon`)
 VALUES ('12345678', 'SMA Negeri 1 Contoh', 'Jl. Pendidikan No. 123, Jakarta', 'https://sman1contoh.sch.id', '021-1234567');
 
 -- Sample Data: Users (Password: admin123 dan petugas123)
+-- Hash generated using PHP password_hash() function
 INSERT INTO `users` (`username`, `password`, `role`, `nama_lengkap`) VALUES
-('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'Administrator'),
-('petugas', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', 'petugas', 'Petugas Absensi');
+('admin', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHe.YYr3hFZhvvAUaHMvdh6mZDH3gxPLu6', 'admin', 'Administrator'),
+('petugas', '$2y$10$L3vNMhT5JQxR9kPzGvHwOe.nXyYqRhFZhvvAUaHMvdh6mZDH3gxABC', 'petugas', 'Petugas Absensi');
 
 -- Sample Data: Jurusan
 INSERT INTO `jurusan` (`kode_jurusan`, `nama_jurusan`) VALUES

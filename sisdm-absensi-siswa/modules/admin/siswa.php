@@ -1,6 +1,12 @@
 <?php
+// Start session FIRST
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once '../../config/database.php';
 checkAuth('admin');
+
 
 $db = Database::getInstance()->getConnection();
 $school = getSchoolInfo();
@@ -44,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
         }
     }
-}
 
 // Get all students with class info
 $stmt = $db->query("SELECT s.*, k.nama_kelas, j.nama_jurusan 
@@ -171,7 +176,6 @@ function editSiswa(data) {
     document.getElementById('siswa-nama').value = data.nama;
     document.getElementById('siswa-kelas').value = data.kelas_id;
     ModalManager.open('modal-add-siswa');
-}
 
 // Reset form when closing modal
 document.getElementById('modal-add-siswa').addEventListener('click', function(e) {

@@ -1,6 +1,12 @@
 <?php
+// Start session FIRST
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once '../../config/database.php';
 checkAuth('petugas');
+
 
 $db = Database::getInstance()->getConnection();
 $school = getSchoolInfo();
@@ -33,7 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$siswa_id, $tanggal, $jam_pulang, $status, $petugas_id]);
         $success = 'Jam pulang berhasil dicatat!';
     }
-}
 
 // Get all students
 $stmt = $db->query("SELECT s.*, k.nama_kelas FROM siswa s LEFT JOIN kelas k ON s.kelas_id = k.id ORDER BY s.nipd");
