@@ -1,6 +1,15 @@
 <?php
 require_once '../../config/database.php';
 
+// Check if already logged in
+if (isset($_SESSION['user_id'])) {
+    if ($_SESSION['role'] === 'admin') {
+        redirect('../admin/dashboard.php');
+    } else {
+        redirect('../petugas/dashboard.php');
+    }
+}
+
 $error = '';
 $success = '';
 $role = $_GET['role'] ?? $_POST['role'] ?? 'admin';
