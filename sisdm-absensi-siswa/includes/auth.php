@@ -1,62 +1,50 @@
 <?php
 /**
- * Authentication Helper Functions
+ * Authentication Helper Functions (Deprecated - Use Auth class instead)
+ * Kept for backward compatibility
  */
 
-session_start();
-
 function isLoggedIn() {
-    return isset($_SESSION['user_id']);
+    $auth = Auth::getInstance();
+    return $auth->isLoggedIn();
 }
 
 function isAdmin() {
-    return isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
+    $auth = Auth::getInstance();
+    return $auth->isAdmin();
 }
 
 function isOfficer() {
-    return isset($_SESSION['role']) && $_SESSION['role'] === 'officer';
+    $auth = Auth::getInstance();
+    return $auth->isOfficer();
 }
 
 function requireLogin() {
-    if (!isLoggedIn()) {
-        header('Location: ../index.php?page=login');
-        exit;
-    }
+    $auth = Auth::getInstance();
+    $auth->requireLogin();
 }
 
 function requireAdmin() {
-    requireLogin();
-    if (!isAdmin()) {
-        header('Location: ../index.php?page=dashboard');
-        exit;
-    }
+    $auth = Auth::getInstance();
+    $auth->requireAdmin();
 }
 
 function requireOfficer() {
-    requireLogin();
-    if (!isOfficer() && !isAdmin()) {
-        header('Location: ../index.php?page=dashboard');
-        exit;
-    }
+    $auth = Auth::getInstance();
+    $auth->requireOfficer();
 }
 
 function logout() {
-    session_destroy();
-    header('Location: ../index.php');
-    exit;
+    $auth = Auth::getInstance();
+    $auth->logout();
 }
 
 function getCurrentUser() {
-    if (!isLoggedIn()) {
-        return null;
-    }
-    
-    $db = Database::getInstance();
-    $user = $db->fetchOne("SELECT * FROM users WHERE id = ?", [$_SESSION['user_id']]);
-    return $user;
+    $auth = Auth::getInstance();
+    return $auth->getCurrentUser();
 }
 
 function getActiveOfficer() {
-    $db = Database::getInstance();
-    return $db->fetchOne("SELECT * FROM attendance_officers WHERE date = CURDATE() AND status = 'active'");
+    $auth = Auth::getInstance();
+    return $auth->getActiveOfficer();
 }

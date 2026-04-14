@@ -1,10 +1,11 @@
 <?php
 /**
  * Settings Module - Pengaturan Program Absensi
- * School Identity, Logo Upload, Background, Theme, Transparency, Blur
+ * School Identity, Logo Upload, Background, Theme, Transparency, Blur, Session Management
  */
 
 $db = Database::getInstance();
+$auth = Auth::getInstance();
 $message = '';
 $messageType = '';
 
@@ -19,6 +20,22 @@ foreach ($settingsQuery as $s) {
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
+    
+    if ($action === 'force_logout_all') {
+        // Force logout all users
+        $auth->forceLogoutAll();
+        $message = 'Semua pengguna telah dipaksa logout!';
+        $messageType = 'success';
+    }
+    
+    if ($action === 'force_logout_user') {
+        $userId = $_POST['user_id'] ?? 0;
+        if ($userId) {
+            $auth->forceLogoutUser($userId);
+            $message = 'Pengguna berhasil dipaksa logout!';
+            $messageType = 'success';
+        }
+    }
     
     if ($action === 'update_school') {
         $npsn = $_POST['npsn'] ?? '';
@@ -114,6 +131,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $messageType = 'success';
     }
 }
+
+// Get active sessions
+$activeSessions = $db->fetchAll(
+    "SELECT id, username, full_name, role, session_token, last_login 
+     FROM users 
+     WHERE session_token IS NOT NULL AND is_active = 1"
+);
 ?>
 
 <div class="sidebar">
@@ -264,6 +288,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 <button type="submit" class="btn btn-primary mt-2">💾 Simpan Pengaturan</button>
             </form>
+        </div>
+
+        <!-- Session Management -->
+        <div class="card" style="grid-column: span 2;">
+            <div class="card-header">
+                <h4>🔐 Manajemen Sesi Aktif</h4>
+            </div>
+            
+            <?php if (count($activeSessions) > 0): ?>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Nama Lengkap</th>
+                            <th>Role</th>
+                            <th>Login Terakhir</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($activeSessions as $session): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($session['username']) ?></td>
+                            <td><?= htmlspecialchars($session['full_name']) ?></td>
+                            <td>
+                                <span class="badge badge-<?= $session['role'] === 'admin' ? 'primary' : 'success' ?>">
+                                    <?= $session['role'] === 'admin' ? 'Administrator' : 'Petugas' ?>
+                                </span>
+                            </td>
+                            <td><?= $session['last_login'] ? date('d/m/Y H:i', strtotime($session['last_login'])) : '-' ?></td>
+                            <td>
+                                <?php if ($session['id'] != $_SESSION['user_id']): ?>
+                                <form method="POST" style="display:inline;" onsubmit="return confirm('Paksa logout user ini?');">
+                                    <input type="hidden" name="action" value="force_logout_user">
+                                    <input type="hidden" name="user_id" value="<?= $session['id'] ?>">
+                                    <button type="submit" class="btn btn-sm btn-danger">🚫 Logout</button>
+                                </form>
+                                <?php else: ?>
+                                <span class="text-muted">Sesi Anda</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-3 p-3" style="background: rgba(255,0,0,0.1); border-radius: 8px;">
+                <form method="POST" onsubmit="return confirm('⚠️ PERINGATAN: Ini akan memaksa logout SEMUA pengguna yang sedang aktif! Lanjutkan?');">
+                    <input type="hidden" name="action" value="force_logout_all">
+                    <button type="submit" class="btn btn-danger">
+                        🚨 Paksa Logout Semua Pengguna
+                    </button>
+                    <small class="text-muted d-block mt-2">
+                        ⚠️ Fitur ini berguna untuk mengatasi masalah "username sedang aktif" atau sesi yang terjebak.
+                    </small>
+                </form>
+            </div>
+            <?php else: ?>
+            <p class="text-muted text-center py-4">Tidak ada sesi aktif saat ini.</p>
+            <?php endif; ?>
         </div>
     </div>
 </div>

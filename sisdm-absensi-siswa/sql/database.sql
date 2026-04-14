@@ -30,6 +30,8 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255),
     phone VARCHAR(20),
     is_active TINYINT(1) DEFAULT 1,
+    session_token VARCHAR(64) DEFAULT NULL,
+    last_login TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -137,6 +139,7 @@ INSERT INTO school_identity (npsn, school_name, address, website, phone, transpa
 ('12345678', 'SMA Negeri 1 Teknologi', 'Jl. Pendidikan No. 123, Jakarta Selatan', 'https://sman1teknologi.sch.id', '+62-21-12345678', 0.95, 10);
 
 -- Insert Sample Data - Users (Password: admin123 untuk admin, officer123 untuk petugas)
+-- Password hash generated with password_hash('admin123', PASSWORD_DEFAULT)
 INSERT INTO users (username, password, full_name, role, email, phone) VALUES
 ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrator Sistem', 'admin', 'admin@sman1teknologi.sch.id', '081234567890'),
 ('petugas1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Petugas Absensi 1', 'officer', 'petugas1@sman1teknologi.sch.id', '081234567891'),

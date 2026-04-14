@@ -50,6 +50,21 @@ Sistem Absensi Siswa Berbasis Web untuk Sekolah
 - **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
 - **No Framework Dependencies** - Pure PHP!
 
+### Libraries (Built-in)
+- `Auth.php` - Authentication & Session Management
+- `Database.php` - PDO Database Connection Class
+- `Config.php` - Configuration Management
+- `Validator.php` - Input Validation Utilities
+
+## 🔒 Fitur Keamanan Baru
+
+### Session Management
+- **Single Session Per User**: Setiap user hanya bisa login di satu tempat
+- **Force Logout**: Admin dapat memaksa logout semua user atau user tertentu
+- **Session Token Validation**: Token disimpan di database dan divalidasi setiap request
+- **Auto Logout on Login**: Login baru otomatis logout sesi lama
+- **Secure Session Cookies**: HttpOnly, SameSite Strict
+
 ## 📦 Instalasi Otomatis
 
 ```bash
@@ -197,10 +212,29 @@ sisdm-absensi-siswa/
 ## 🔒 Keamanan
 
 - Password hashing dengan bcrypt
+- **Single session per user** - mencegah login bersamaan
+- **Session token validation** - token disimpan di database
+- **Force logout capability** - admin dapat paksa logout user
 - Session-based authentication
 - Role-based access control
 - SQL injection prevention (prepared statements)
 - File upload validation
+- Secure session cookies (HttpOnly, SameSite)
+- XSS protection dengan htmlspecialchars
+
+## 🐛 Bug Fixes (Latest Update)
+
+### Fixed Issues:
+1. ✅ **Login tidak berfungsi** - Diperbaiki dengan Auth class baru
+2. ✅ **Session tidak valid** - Ditambahkan session token validation
+3. ✅ **Username sedang aktif** - Fitur force logout untuk reset sesi
+4. ✅ **Password hash tidak cocok** - SQL sample data menggunakan hash yang benar
+
+### New Features:
+1. 🔐 **Manajemen Sesi Aktif** - Lihat semua user yang sedang login
+2. 🚫 **Force Logout User** - Logout user tertentu dari panel admin
+3. 🚨 **Force Logout All** - Logout semua user sekaligus
+4. 📊 **Last Login Tracking** - Catat waktu login terakhir setiap user
 
 ## 📄 License
 
