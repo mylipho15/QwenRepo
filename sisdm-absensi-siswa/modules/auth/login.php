@@ -1,27 +1,42 @@
 <?php
+// Start session FIRST before any other code
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once '../../config/database.php';
+
+// Debug logging (remove in production)
+error_log("Session ID: " . session_id());
+error_log("SESSION data: " . print_r($_SESSION, true));
 
 // Check if already logged in
 if (isset($_SESSION['user_id'])) {
+    error_log("User already logged in, role: " . $_SESSION['role']);
     if ($_SESSION['role'] === 'admin') {
-        redirect('../admin/dashboard.php');
+        header("Location: ../admin/dashboard.php");
+        exit();
     } else {
-        redirect('../petugas/dashboard.php');
+        header("Location: ../petugas/dashboard.php");
+        exit();
     }
 }
 
 $error = '';
 $success = '';
-$role = $_GET['role'] ?? $_POST['role'] ?? 'admin';
+$role = isset($_GET['role']) ? $_GET['role'] : (isset($_POST['role']) ? $_POST['role'] : 'admin');
 
 // Handle login form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $role = $_POST['role'] ?? 'admin';
+    $username = isset($_POST['username']) ? trim($_POST['username']) : '';
+    $password = isset($_POST['password']) ? $_POST['password'] : '';
+    $role = isset($_POST['role']) ? $_POST['role'] : 'admin';
+    
+    error_log("Login attempt - Username: $username, Role: $role");
     
     if (empty($username) || empty($password)) {
         $error = 'Username dan password harus diisi!';
+        error_log("Login failed: Empty username or password");
     } else {
         try {
             $db = Database::getInstance()->getConnection();
@@ -29,23 +44,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$username, $role]);
             $user = $stmt->fetch();
             
-            if ($user && password_verify($password, $user['password'])) {
-                // Regenerate session ID for security
-                session_regenerate_id(true);
+            if ($user) {
+                error_log("User found: " . $user['username'] . ", Password hash: " . substr($user['password'], 0, 20) . "...");
+                error_log("Password verify result: " . (password_verify($password, $user['password']) ? 'true' : 'false'));
                 
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
-                $_SESSION['role'] = $user['role'];
-                
-                // Redirect based on role
-                if ($user['role'] === 'admin') {
-                    redirect('../admin/dashboard.php');
+                if (password_verify($password, $user['password'])) {
+                    // Regenerate session ID for security
+                    session_regenerate_id(true);
+                    
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['username'] = $user['username'];
+                    $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
+                    $_SESSION['role'] = $user['role'];
+                    
+                    error_log("Login successful! Session created for user: " . $user['username']);
+                    
+                    // Redirect based on role
+                    if ($user['role'] === 'admin') {
+                        header("Location: ../admin/dashboard.php");
+                        exit();
+                    } else {
+                        header("Location: ../petugas/dashboard.php");
+                        exit();
+                    }
                 } else {
-                    redirect('../petugas/dashboard.php');
+                    $error = 'Username atau password salah!';
+                    error_log("Login failed: Password verification failed");
                 }
             } else {
                 $error = 'Username atau password salah!';
+                error_log("Login failed: User not found");
             }
         } catch(PDOException $e) {
             error_log("Login error: " . $e->getMessage());

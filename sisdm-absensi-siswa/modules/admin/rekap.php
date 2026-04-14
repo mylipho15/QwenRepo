@@ -1,6 +1,12 @@
 <?php
+// Start session FIRST
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once '../../config/database.php';
 checkAuth('admin');
+
 
 $db = Database::getInstance()->getConnection();
 $school = getSchoolInfo();
@@ -13,7 +19,6 @@ $tanggal_end = $_GET['tanggal_end'] ?? date('Y-m-d', strtotime('sunday this week
 if ($periode === 'bulanan') {
     $tanggal_start = date('Y-m-01');
     $tanggal_end = date('Y-m-t');
-}
 
 // Build query
 $sql = "SELECT s.nipd, s.nama, k.nama_kelas, j.nama_jurusan,
@@ -136,7 +141,6 @@ function exportToCSV() {
     link.href = URL.createObjectURL(blob);
     link.download = 'rekap_absensi_<?php echo date('Y-m-d'); ?>.csv';
     link.click();
-}
 </script>
 
 <?php include '../../includes/footer.php'; ?>
