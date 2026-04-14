@@ -4,6 +4,11 @@
  * Compatible with Laragon 6.0.0 (MySQL 8.0.30)
  */
 
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
@@ -60,7 +65,6 @@ function isPetugas() {
 }
 
 function checkAuth($requiredRole = null) {
-    session_start();
     if(!isLoggedIn()) {
         redirect('../auth/login.php');
     }
@@ -73,9 +77,13 @@ function checkAuth($requiredRole = null) {
 }
 
 function getSchoolInfo() {
-    $db = Database::getInstance()->getConnection();
-    $stmt = $db->query("SELECT * FROM sekolah LIMIT 1");
-    return $stmt->fetch();
+    try {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->query("SELECT * FROM sekolah LIMIT 1");
+        return $stmt->fetch();
+    } catch(PDOException $e) {
+        return [];
+    }
 }
 
 function getCurrentDate() {
