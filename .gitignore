@@ -1,22 +1,26 @@
 ```
-# Environment and configuration
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+
+# Dependencies
+vendor/
+composer.lock
+
+# Logs and temp files
+*.log
+*.tmp
+
+# Environment
 .env
 .env.local
 *.env.*
 
-# Logs
-*.log
+# Editors
+.vscode/
+.idea/
 
-# Temporary files
-*.tmp
-*.swp
-
-# OS generated files
+# OS specific
 .DS_Store
 Thumbs.db
-
-# PHP specific
-*.php~
-php_errors.log
-error_log
 ```

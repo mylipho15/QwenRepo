@@ -7,33 +7,29 @@ $role = $_GET['role'] ?? 'admin';
 $error = '';
 $success = '';
 
+// Get Auth instance
+$auth = Auth::getInstance();
+
+// Check if user is already logged in
+if ($auth->isLoggedIn()) {
+    header('Location: index.php?page=dashboard');
+    exit;
+}
+
 // Handle login form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
     $loginRole = $_POST['role'] ?? 'admin';
     
-    if (empty($username) || empty($password)) {
-        $error = 'Username dan password harus diisi!';
+    // Perform login using Auth class
+    $result = $auth->login($username, $password, $loginRole);
+    
+    if ($result['success']) {
+        header('Location: index.php?page=dashboard');
+        exit;
     } else {
-        $db = Database::getInstance();
-        $user = $db->fetchOne("SELECT * FROM users WHERE username = ? AND is_active = 1", [$username]);
-        
-        if ($user && password_verify($password, $user['password'])) {
-            if ($user['role'] === $loginRole || $loginRole === 'any') {
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['full_name'] = $user['full_name'];
-                $_SESSION['role'] = $user['role'];
-                
-                header('Location: index.php?page=dashboard');
-                exit;
-            } else {
-                $error = 'Anda tidak memiliki akses sebagai ' . ($loginRole === 'admin' ? 'Administrator' : 'Petugas');
-            }
-        } else {
-            $error = 'Username atau password salah!';
-        }
+        $error = $result['message'];
     }
 }
 ?>
@@ -87,5 +83,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
             </small>
         </div>
+        
+        <!-- Force Logout Section -->
+        <?php if ($auth->isAdmin()): ?>
+        <div class="mt-4 pt-3 border-top">
+            <p class="text-muted mb-2"><small>⚠️ Session Management</small></p>
+            <form method="POST" action="index.php?page=settings&tab=sessions" onsubmit="return confirm('Apakah Anda yakin ingin memaksa logout semua pengguna?');">
+                <input type="hidden" name="action" value="force_logout_all">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                    🚫 Paksa Logout Semua User
+                </button>
+            </form>
+        </div>
+        <?php endif; ?>
     </div>
 </div>

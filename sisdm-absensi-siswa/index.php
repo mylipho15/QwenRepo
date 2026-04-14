@@ -6,13 +6,24 @@
 
 // Load dependencies
 require_once __DIR__ . '/includes/Database.php';
+require_once __DIR__ . '/includes/Auth.php';
 require_once __DIR__ . '/includes/auth.php';
 
-// Get database instance to test connection
-$db = Database::getInstance();
+// Initialize Auth
+$auth = Auth::getInstance();
 
 // Get page parameter
 $page = $_GET['page'] ?? 'home';
+
+// Handle logout action
+if ($page === 'logout') {
+    $auth->logout();
+    header('Location: index.php');
+    exit;
+}
+
+// Get database instance to test connection
+$db = Database::getInstance();
 
 // Get school identity
 $school = $db->fetchOne("SELECT * FROM school_identity LIMIT 1");
@@ -62,42 +73,34 @@ $bgImage = $settings['background_image'] ?? '';
         <!-- Login Page -->
         <?php include 'modules/login.php'; ?>
         
-    <?php elseif ($page === 'logout'): ?>
-        <!-- Logout -->
-        <?php 
-        session_destroy();
-        header('Location: index.php');
-        exit;
-        ?>
-        
     <?php elseif ($page === 'dashboard'): ?>
         <!-- Dashboard -->
-        <?php requireLogin(); ?>
+        <?php $auth->requireLogin(); ?>
         <?php include 'modules/dashboard.php'; ?>
         
     <?php elseif ($page === 'students'): ?>
         <!-- Student Management -->
-        <?php requireAdmin(); ?>
+        <?php $auth->requireAdmin(); ?>
         <?php include 'modules/students.php'; ?>
         
     <?php elseif ($page === 'attendance'): ?>
         <!-- Attendance Management -->
-        <?php requireLogin(); ?>
+        <?php $auth->requireLogin(); ?>
         <?php include 'modules/attendance.php'; ?>
         
     <?php elseif ($page === 'reports'): ?>
         <!-- Reports -->
-        <?php requireAdmin(); ?>
+        <?php $auth->requireAdmin(); ?>
         <?php include 'modules/reports.php'; ?>
         
     <?php elseif ($page === 'settings'): ?>
         <!-- Settings -->
-        <?php requireAdmin(); ?>
+        <?php $auth->requireAdmin(); ?>
         <?php include 'modules/settings.php'; ?>
         
     <?php elseif ($page === 'officers'): ?>
         <!-- Officer Management -->
-        <?php requireAdmin(); ?>
+        <?php $auth->requireAdmin(); ?>
         <?php include 'modules/officers.php'; ?>
         
     <?php else: ?>
