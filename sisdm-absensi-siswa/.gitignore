@@ -1,0 +1,57 @@
+# SISDM Absensi Siswa - Git Ignore File
+
+# System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE/Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Log Files
+*.log
+logs/
+
+# Upload Directory (keep folder but ignore files)
+assets/images/uploads/*
+!assets/images/uploads/.gitkeep
+
+# Configuration (optional - for production)
+# config/database.php
+
+# Temporary Files
+tmp/
+temp/
+*.tmp
+
+# Cache Files
+cache/
+*.cache
+
+# OS Files
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Composer
+/vendor/
+composer.lock
+
+# Node Modules (if using npm/yarn)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment Files
+.env
+.env.local
+.env.*.local
+
+# Database dumps (optional)
+*.sql.backup
+*.sql.bak
