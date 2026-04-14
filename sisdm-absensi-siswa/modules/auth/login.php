@@ -1,9 +1,9 @@
 <?php
-session_start();
 require_once '../../config/database.php';
 
 $error = '';
 $success = '';
+$role = $_GET['role'] ?? $_POST['role'] ?? 'admin';
 
 // Handle login form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -21,6 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = $stmt->fetch();
             
             if ($user && password_verify($password, $user['password'])) {
+                // Regenerate session ID for security
+                session_regenerate_id(true);
+                
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
@@ -35,7 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $error = 'Username atau password salah!';
             }
-        } catch (PDOException $e) {
+        } catch(PDOException $e) {
+            error_log("Login error: " . $e->getMessage());
             $error = 'Terjadi kesalahan sistem. Silakan coba lagi.';
         }
     }
@@ -72,18 +76,20 @@ $school = getSchoolInfo();
             <?php endif; ?>
             
             <form method="POST" action="">
+                <input type="hidden" name="role" value="<?php echo htmlspecialchars($role); ?>">
+                
                 <div class="form-group">
-                    <label class="form-label" for="role">Login Sebagai</label>
-                    <select class="form-control" id="role" name="role" required>
-                        <option value="admin">Administrator</option>
-                        <option value="petugas">Petugas Absensi</option>
-                    </select>
+                    <label class="form-label">Login Sebagai</label>
+                    <div class="card" style="padding: 1rem; text-align: center;">
+                        <strong><?php echo $role === 'admin' ? '👨‍💼 Administrator' : '📝 Petugas Absensi'; ?></strong>
+                    </div>
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label" for="username">Username</label>
                     <input type="text" class="form-control" id="username" name="username" 
-                           placeholder="Masukkan username" required autofocus>
+                           placeholder="Masukkan username" required autofocus 
+                           value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>">
                 </div>
                 
                 <div class="form-group">
@@ -99,6 +105,12 @@ $school = getSchoolInfo();
             
             <div class="mt-2 text-center">
                 <small>Kembali ke <a href="../../index.php">Beranda</a></small>
+            </div>
+            
+            <div class="mt-2" style="font-size: 0.8rem; color: var(--text-secondary);">
+                <p><strong>Demo Credentials:</strong></p>
+                <p>Admin: admin / admin123</p>
+                <p>Petugas: petugas / petugas123</p>
             </div>
         </div>
     </div>
